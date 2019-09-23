@@ -1,5 +1,7 @@
 /** @typedef {import("./session")} Session */
 
+const VersionStatus = require("./version-status.enum");
+
 class ChangesDetector {
     /**
      * @param {Session} session Session
@@ -35,18 +37,52 @@ class ChangesDetector {
         let versionsManager = this._session.getVersionsManager();
         await versionsManager.updateEntitiesHash(tableName, allEntities);
 
-        let localVersions = null;
+        let localVersions = await versionsManager.getAll(tableName);
 
         let changes = this._getTableChanges(localVersions, serverVersions);
+        this._apply(changes.local);
+        this._applyInServer(changes.server);
     }
 
     _getTableChanges(localVersions, serverVersions) {
-        let actions = [];
+        let local = [];
+        let server = [];
 
         localVersions.forEach(l => {
             let s = serverVersions.find(m => m.id === l.id);
-
+            if (!s) {
+                server.push({ action: "create", version: l });
+            }
+            else if (s.hash !== l.hash) {
+                if (l.status === VersionStatus.Deleted && s.status !== l.status) {
+                    server.push({ action: "delete", version: l });
+                }
+                else if (s.status === VersionStatus.Deleted && s.status !== l.status) {
+                    local.push({ action: "delete", version: s });
+                }
+                else if (l.version <= s.version) {
+                    local.push({ action: "update", version: s });
+                }
+                else {
+                    server.push({ action: "update", version: l });
+                }
+            }
         });
+
+        serverVersions.filter(s => !localVersions.some(l => l.id === s.id)).forEach(s => {
+            local.push({ action: "create", version: s });
+        });
+
+        return { local, server };
+    }
+
+    _apply(changes) {
+        let modifications = await this._communication.sendAndWait("get-modifications", changes.map(m => ({ id: m.version.id, table: m.version.table })));
+        throw new Error("Not implemented");
+    }
+
+    _applyInServer(changes) {
+        throw new Error("Not implemented");
     }
 }
 

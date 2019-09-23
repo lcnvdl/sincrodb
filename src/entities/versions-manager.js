@@ -17,6 +17,10 @@ class VersionsManager {
         return SHA256(entity);
     }
 
+    async getAll(table) {
+        return await this._versions.findAll({ table });
+    }
+
     async getVersion(table, id) {
         let version = await this._versions.findOne({ id, table });
         if (!version) {

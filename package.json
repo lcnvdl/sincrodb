@@ -1,0 +1,26 @@
+{
+  "name": "sincrodb",
+  "version": "0.0.1",
+  "description": "SincroDB is a database synchronizer that allows you to develop offline-first applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcnvdl/sincrodb.git"
+  },
+  "keywords": [
+    "sincrodb"
+  ],
+  "author": "lcnvdl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lcnvdl/sincrodb/issues"
+  },
+  "homepage": "https://github.com/lcnvdl/sincrodb#readme",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "socket.io-client": "^2.3.0"
+  }
+}

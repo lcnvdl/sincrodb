@@ -76,7 +76,7 @@ class ChangesDetector {
         return { local, server };
     }
 
-    _apply(changes) {
+    async _apply(changes) {
         let modifications = await this._communication.sendAndWait("get-modifications", changes.map(m => ({ id: m.version.id, table: m.version.table })));
         throw new Error("Not implemented");
     }

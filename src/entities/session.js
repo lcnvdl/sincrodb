@@ -1,9 +1,10 @@
 /** @typedef {import("./connection-data")} ConnectionData */
 /** @typedef {import("../sockets/socker-client-layer")} SocketClientLayer */
-/** @typedef {import("../entities/versions-manager")} VersionsManager */
 /** @typedef {import("../database/database.driver")} DatabaseDriver */
 
 const EventEmitter = require("events");
+const Communication = require("../protocols/communication");
+const VersionsManager = require("../entities/versions-manager");
 
 class Session {
     /**
@@ -17,6 +18,7 @@ class Session {
         this._schemas = {};
         this._schemasConnections = {};
         this._dbDrivers = {};
+        this._communication = null;
 
         this._connect();
     }
@@ -42,30 +44,32 @@ class Session {
 
     /**
      * @param {string} id Schema ID
-     * @returns {DatabaseDriver}
+     * @returns {DatabaseDriver} DatabaseDriver
      */
     getDb(id) {
         return this._dbDrivers[this._schemasConnections[id]];
     }
 
     /**
-     * @returns 
+     * @returns {Communication} Communication
      */
-    getCommunication() {
-        throw new Error("Not implemented");
+    get communication() {
+        if (this._communication === null) {
+            this._communication = new Communication(this._socketLayer);
+        }
+
+        return this._communication;
     }
 
     /**
+     * @param {string} id Schema ID
      * @returns {VersionsManager} VersionsManager
      */
-    getVersionsManager() {
-        throw new Error("Not implemented");
+    getVersionsManager(id) {
+        return new VersionsManager(this.getDb(id));
     }
 
     _connect() {
-        this._socketLayer.onConnect(() => {
-        });
-
         this._socketLayer.connect(this._connectionData.protocol + "://" + this._connectionData.url);
     }
 }

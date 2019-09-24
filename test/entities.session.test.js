@@ -6,7 +6,6 @@ const SocketLayerStub = require("./stubs/socket-layer.stub");
 let socket = null;
 
 describe("Session", () => {
-
     beforeEach(() => {
         socket = new SocketLayerStub();
     });

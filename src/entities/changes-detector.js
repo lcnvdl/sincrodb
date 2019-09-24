@@ -1,6 +1,7 @@
 /** @typedef {import("./session")} Session */
 
 const VersionStatus = require("./version-status.enum");
+const Api = require("../protocols/api");
 
 class ChangesDetector {
     /**
@@ -8,10 +9,7 @@ class ChangesDetector {
      */
     constructor(session) {
         this._session = session;
-    }
-
-    get _communication() {
-        return this._session.getCommunication();
+        this._api = new Api(session);
     }
 
     async heavySync() {
@@ -30,7 +28,7 @@ class ChangesDetector {
     }
 
     async _heavySyncTable(schemaId, tableName) {
-        let serverVersions = await this._communication.sendAndWait("get-all-versions", table);
+        let serverVersions = await this._api.getAllVersions(tableName);
         let table = this._session.getDb(schemaId).get(tableName);
 
         let allEntities = await table.all();
@@ -77,7 +75,8 @@ class ChangesDetector {
     }
 
     async _apply(changes) {
-        let modifications = await this._communication.sendAndWait("get-modifications", changes.map(m => ({ id: m.version.id, table: m.version.table })));
+        const currentStatus = changes.map(m => ({ id: m.version.id, table: m.version.table }));
+        const modifications = await this._api.getModifications(currentStatus);
         throw new Error("Not implemented");
     }
 

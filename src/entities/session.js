@@ -66,6 +66,10 @@ class Session {
      * @returns {VersionsManager} VersionsManager
      */
     getVersionsManager(id) {
+        if (!id) {
+            throw new Error("Schema ID is required");
+        }
+
         return new VersionsManager(this.getDb(id));
     }
 

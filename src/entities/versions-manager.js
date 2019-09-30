@@ -8,6 +8,10 @@ class VersionsManager {
      * @param {DatabaseDriver} databaseDriver Driver
      */
     constructor(databaseDriver) {
+        if (!databaseDriver) {
+            throw new Error("Database driver is required");
+        }
+
         this._db = databaseDriver;
         this._versions = this._db.get("versions");
     }

@@ -15,16 +15,20 @@ class ChangesDetector {
     async heavySync() {
         let schemas = this._session.schemas;
         let schemasIds = Object.keys(schemas);
+        let allChanges = [];
 
         for (let i = 0; i < schemasIds.length; i++) {
             const schemaId = schemasIds[i];
             const schema = schemas[schemasIds[i]];
 
             for (let ti = 0; ti < schema.tables.length; ti++) {
-                let table = schema.tables[ti];
-                await this._heavySyncTable(schemaId, table);
+                const table = schema.tables[ti];
+                const changes = await this._heavySyncTable(schemaId, table);
+                allChanges.push(changes);
             }
         }
+        
+        return allChanges;
     }
 
     async _heavySyncTable(schemaId, tableName) {
@@ -32,7 +36,7 @@ class ChangesDetector {
         let table = this._session.getDb(schemaId).get(tableName);
 
         let allEntities = await table.all();
-        let versionsManager = this._session.getVersionsManager();
+        let versionsManager = this._session.getVersionsManager(schemaId);
         await versionsManager.updateEntitiesHash(tableName, allEntities);
 
         let localVersions = await versionsManager.getAll(tableName);
@@ -40,6 +44,8 @@ class ChangesDetector {
         let changes = this._getTableChanges(localVersions, serverVersions);
         this._apply(changes.local);
         this._applyInServer(changes.server);
+
+        return changes;
     }
 
     _getTableChanges(localVersions, serverVersions) {

@@ -12,10 +12,14 @@ class ChangesDetector {
         this._api = new Api(session);
     }
 
-    async heavySync() {
+    async heavySync(applyChanges) {
         let schemas = this._session.schemas;
         let schemasIds = Object.keys(schemas);
         let allChanges = [];
+
+        if (typeof applyChanges === "undefined") {
+            applyChanges = true;
+        }
 
         for (let i = 0; i < schemasIds.length; i++) {
             const schemaId = schemasIds[i];
@@ -23,15 +27,15 @@ class ChangesDetector {
 
             for (let ti = 0; ti < schema.tables.length; ti++) {
                 const table = schema.tables[ti];
-                const changes = await this._heavySyncTable(schemaId, table);
+                const changes = await this._heavySyncTable(schemaId, table, applyChanges);
                 allChanges.push(changes);
             }
         }
-        
+
         return allChanges;
     }
 
-    async _heavySyncTable(schemaId, tableName) {
+    async _heavySyncTable(schemaId, tableName, applyChanges) {
         let serverVersions = await this._api.getAllVersions(tableName);
         let table = this._session.getDb(schemaId).get(tableName);
 
@@ -42,8 +46,11 @@ class ChangesDetector {
         let localVersions = await versionsManager.getAll(tableName);
 
         let changes = this._getTableChanges(localVersions, serverVersions);
-        this._apply(changes.local);
-        this._applyInServer(changes.server);
+
+        if (applyChanges) {
+            this._apply(changes.local);
+            this._applyInServer(changes.server);
+        }
 
         return changes;
     }
@@ -81,12 +88,20 @@ class ChangesDetector {
     }
 
     async _apply(changes) {
+        if (changes.length === 0) {
+            return;
+        }
+
         const currentStatus = changes.map(m => ({ id: m.version.id, table: m.version.table }));
         const modifications = await this._api.getModifications(currentStatus);
         throw new Error("Not implemented");
     }
 
     _applyInServer(changes) {
+        if (changes.length === 0) {
+            return;
+        }
+        
         throw new Error("Not implemented");
     }
 }

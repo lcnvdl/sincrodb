@@ -15,7 +15,7 @@ describe("ChangesDetector", () => {
         });
     });
 
-    describe("#heavySync", () => {
+    describe("#heavySync - read only", () => {
         let session;
         let detector;
         let driver;
@@ -38,7 +38,7 @@ describe("ChangesDetector", () => {
             expect(0).to.equal(result.length);
         });
 
-        it("should return an empty list if session doesn't have schemas", async () => {
+        it("empty table should not report changes", async () => {
             let schema = {
                 tables: ["users"]
             };
@@ -63,9 +63,11 @@ describe("ChangesDetector", () => {
                 findAll: () => Promise.resolve([])
             };
 
-            let result = await detector.heavySync();
+            let result = await detector.heavySync(false);
             expect(result).to.be.ok;
-            expect(0).to.equal(result.length);
+            expect(1).to.equal(result.length);
+            expect(0).to.equal(result[0].local.length);
+            expect(0).to.equal(result[0].server.length);
         });
     });
 });

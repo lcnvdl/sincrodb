@@ -17,8 +17,8 @@ class VersionsManager {
     }
 
     _calculateHash(entity) {
-        let entity = JSON.stringify(entity);
-        return SHA256(entity);
+        let entityJson = JSON.stringify(entity);
+        return SHA256(entityJson).toString();
     }
 
     async getAll(table) {
@@ -53,12 +53,14 @@ class VersionsManager {
             let entity = all.find(m => m.id === version.id);
 
             if (!entity) {
-                this._markVersionAsDeleted(version);
-                await this._versions.save(version, { id: version.id, table: version.table });
+                if (version.status !== VersionStatus.Deleted) {
+                    this._markVersionAsDeleted(version);
+                    await this._versions.save(version, { id: version.id, table: version.table });
+                }
             }
             else {
                 let hash = this._calculateHash(entity);
-                if (entity.hash !== hash) {
+                if (version.hash !== hash && version.status !== VersionStatus.Deleted) {
                     this._changeVersionHash(version, hash);
                     await this._versions.save(version, { id: version.id, table: version.table });
                 }

@@ -62,7 +62,9 @@ class ChangesDetector {
         localVersions.forEach(l => {
             let s = serverVersions.find(m => m.id === l.id);
             if (!s) {
-                server.push({ action: "create", version: l });
+                if (l.status !== VersionStatus.Deleted) {
+                    server.push({ action: "create", version: l });
+                }
             }
             else if (s.hash !== l.hash) {
                 if (l.status === VersionStatus.Deleted && s.status !== l.status) {
@@ -101,7 +103,7 @@ class ChangesDetector {
         if (changes.length === 0) {
             return;
         }
-        
+
         throw new Error("Not implemented");
     }
 }

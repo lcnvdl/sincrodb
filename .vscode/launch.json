@@ -14,7 +14,11 @@
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": ["--timeout", "999999", "--colors", "${workspaceFolder}/test"],
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
     },
     {
       "type": "node",
@@ -23,7 +27,11 @@
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": ["--timeout", "999999", "--colors", "${file}"],
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
     }
   ]
 }

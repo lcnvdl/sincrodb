@@ -9,8 +9,8 @@ class SincroDB {
     }
 
     /**
-     * 
      * @param {string} url Connection url
+     * @returns {Session}
      */
     static createSession(url) {
         if (url.indexOf("sincrodb://") === -1 && url.indexOf("sincrodbs://") === -1) {

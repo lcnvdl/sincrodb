@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 class DatabaseTable {
     constructor(name) {
         this.name = name;

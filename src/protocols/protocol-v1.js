@@ -32,6 +32,7 @@ class ProtocolV1 {
      * @param {string} cmd Command
      * @param {*} obj Object to serialize
      * @param {string|number} [replyTo] Message ID (for answering)
+     * @returns {string}
      */
     static prepare(cmd, obj, replyTo) {
         if (replyTo) {
